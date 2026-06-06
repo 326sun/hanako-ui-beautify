@@ -1,5 +1,5 @@
 {
-  "id": "hanako-ui-beautify",
+  "id": "hana-ui-beautify",
   "name": "Hana UI Beautify",
   "version": "0.1.0",
   "description": "Plugin-managed UI beautify pack for official Hanako: HarmonyOS Sans SC fonts and unified motion tokens.",
@@ -21,7 +21,7 @@
         "hanakoInstallDir": {
           "type": "string",
           "title": "Hanako install directory",
-          "default": "C:\\Program Files\\Hanako"
+          "default": "C:\\Program Files\\HanaAgent"
         }
       }
     }

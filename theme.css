@@ -144,3 +144,11 @@ html body :where(
 ) {
   --slide-y: var(--motion-enter-y);
 }
+
+/* ── 强制字体覆盖 ── */
+/* Hanako 当前版本不使用 var(--font-ui)，必须用 !important 直接覆盖 */
+
+html, body, #root, #app {
+  font-family: 'HarmonyOS Sans SC', Inter, -apple-system, BlinkMacSystemFont,
+               'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif !important;
+}
