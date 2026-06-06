@@ -37,7 +37,7 @@ if (fs.existsSync(PLUGIN_DEST)) {
 }
 
 console.log("\n[3/4] Copy plugin...");
-const filesToCopy = ["manifest.json", "index.js", "theme.css", "package.json"];
+const filesToCopy = ["manifest.json", "index.js", "theme.css", "package.json", "README.md", "INSTALL.md", "LICENSE"];
 const dirsToCopy = ["lib", "tools"];
 fs.mkdirSync(PLUGIN_DEST, { recursive: true });
 for (const file of filesToCopy) {
@@ -53,6 +53,9 @@ console.log(`  Installed to ${PLUGIN_DEST}`);
 console.log("\n[4/4] Verify...");
 const checks = [
   "package.json",
+  "README.md",
+  "INSTALL.md",
+  "LICENSE",
   "manifest.json",
   "index.js",
   "theme.css",
@@ -83,7 +86,8 @@ if (ok) {
   console.log("  2. Settings > Plugins > Enable 'Allow full-access plugins'");
   console.log("  3. Enable 'Hana UI Beautify'");
   console.log("");
-  console.log("The plugin auto-applies when enabled if Hanako's resources folder is writable.");
+  console.log("By default the plugin only checks status. Use the apply tool to apply the patch.");
+  console.log("If autoApply is enabled and Hanako's resources folder is writable, the plugin applies in the background.");
   console.log("If Windows blocks Program Files writes, run Hanako once as administrator or use the apply tool from an elevated session.");
 } else {
   console.log("Installation incomplete. Check the missing files above.");

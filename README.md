@@ -1,9 +1,11 @@
 # Hana UI Beautify
 
+不会安装、看不懂插件应该放哪里时，先看 [`INSTALL.md`](./INSTALL.md)。那是一份面向普通用户和其他 Agent 的傻瓜安装教程。
+
 > **警告 — 全权限插件**
 >
 > 此插件会修改 Hanako 安装目录下的 `resources/app.asar`。
-> 在 Windows 上，`C:\Program Files\Hanako` 通常需要**管理员权限**才能写入。
+> 在 Windows 上，`C:\Program Files\HanaAgent`（或旧版 `C:\Program Files\Hanako`）通常需要**管理员权限**才能写入。
 > 插件在修改前会将 `app.asar` 备份为 `app.asar.bak`，
 > 但**卸载前务必先执行 `restore` 工具**——否则视觉补丁会在删除插件后残留。
 
@@ -11,7 +13,7 @@
 
 ## 功能
 
-将 Hanako 默认 UI 字体替换为** HarmonyOS Sans SC（鸿蒙黑体）**，并注入统一动效曲线，
+将 Hanako 默认 UI 字体替换为 **HarmonyOS Sans SC（鸿蒙黑体）**，并注入统一动效曲线，
 让界面过渡更流畅。整个操作是对 `app.asar` 的可逆 CSS 补丁，不触碰任何 JS 逻辑。
 
 - **字体替换**：4 个字重 WOFF2 文件（Light / Regular / Medium / Bold）
@@ -48,8 +50,8 @@ npm run install-plugin
 1. 打开 **允许全权限插件**
 2. 启用 **Hana UI Beautify**
 
-默认配置下，插件启用后只检查状态，不会立刻修改 `app.asar`。请先调用 `status` 确认路径和权限，再调用
-`apply` 工具应用补丁。若你在配置中打开 `autoApply`，插件会在启动后把 apply 放到后台执行，避免阻塞插件加载。
+默认配置下，插件启用后只检查状态，不会立刻修改 `app.asar`。直接调用 `apply` 工具应用补丁即可（内部已做完整前置校验）。
+若你在配置中打开 `autoApply`，插件会在启动后把 apply 放到后台执行，避免阻塞插件加载。
 
 如果 `C:\Program Files\HanaAgent\resources` 可写，`apply` 可直接执行；否则需要以管理员身份运行一次 Hanako，
 或从提权会话调用 `apply` 工具。旧安装路径 `C:\Program Files\Hanako` 仍会被自动探测。
@@ -80,6 +82,9 @@ npm run install-plugin
 如果插件已被删除，手动将 `app.asar.bak` 复制回 `app.asar`：
 
 ```powershell
+# 默认安装路径
+copy C:\Program Files\HanaAgent\resources\app.asar.bak C:\Program Files\HanaAgent\resources\app.asar
+# 旧版安装路径
 copy C:\Program Files\Hanako\resources\app.asar.bak C:\Program Files\Hanako\resources\app.asar
 ```
 
