@@ -48,8 +48,11 @@ npm run install-plugin
 1. 打开 **允许全权限插件**
 2. 启用 **Hana UI Beautify**
 
-如果 `C:\Program Files\Hanako\resources` 可写，插件首次加载时自动 apply。
-否则需要以管理员身份运行一次 Hanako，或从提权会话调用 `apply` 工具。
+默认配置下，插件启用后只检查状态，不会立刻修改 `app.asar`。请先调用 `status` 确认路径和权限，再调用
+`apply` 工具应用补丁。若你在配置中打开 `autoApply`，插件会在启动后把 apply 放到后台执行，避免阻塞插件加载。
+
+如果 `C:\Program Files\HanaAgent\resources` 可写，`apply` 可直接执行；否则需要以管理员身份运行一次 Hanako，
+或从提权会话调用 `apply` 工具。旧安装路径 `C:\Program Files\Hanako` 仍会被自动探测。
 
 ## 工具
 
@@ -65,8 +68,8 @@ npm run install-plugin
 
 | 键 | 类型 | 默认值 | 说明 |
 |-----|------|--------|------|
-| `autoApply` | 布尔 | `true` | 插件加载时自动应用美化 |
-| `hanakoInstallDir` | 字符串 | `C:\Program Files\Hanako` | Hanako 安装路径 |
+| `autoApply` | 布尔 | `false` | 插件加载后在后台自动应用美化 |
+| `hanakoInstallDir` | 字符串 | `C:\Program Files\HanaAgent` | Hanako 安装路径；未配置时会自动探测旧版 `Hanako` 路径 |
 
 ## 卸载
 
