@@ -1,6 +1,6 @@
 {
   "name": "hanako-ui-beautify",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Plugin-managed UI beautify pack for Hanako: HarmonyOS Sans SC fonts and unified motion tokens.",
   "author": "Sun",
   "license": "MIT",
