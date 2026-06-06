@@ -1,0 +1,146 @@
+/* ========================================
+   Hana Supplement Theme — Sun Edition
+   鸿蒙黑体 + Apple Spring Animation
+   ========================================
+   安装器会将此文件内联追加到 styles.css 末尾，并修正字体路径。
+   这样 motion token 和局部动效覆盖能作为最后一层生效。
+   ======================================== */
+
+/* ── HarmonyOS Sans SC（鸿蒙黑体）── */
+/* 字体文件需与 sun-enhance.css 放在同一目录下的 fonts/ 子目录 */
+
+@font-face {
+  font-family: 'HarmonyOS Sans SC';
+  src: local('HarmonyOS Sans SC'), local('HarmonyOS_Sans_SC'),
+       url('./fonts/harmonyos-sans-sc-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'HarmonyOS Sans SC';
+  src: local('HarmonyOS Sans SC Light'), local('HarmonyOS_Sans_SC_Light'),
+       url('./fonts/harmonyos-sans-sc-light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'HarmonyOS Sans SC';
+  src: local('HarmonyOS Sans SC Medium'), local('HarmonyOS_Sans_SC_Medium'),
+       url('./fonts/harmonyos-sans-sc-medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'HarmonyOS Sans SC';
+  src: local('HarmonyOS Sans SC Bold'), local('HarmonyOS_Sans_SC_Bold'),
+       url('./fonts/harmonyos-sans-sc-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── 覆盖设计变量 ── */
+
+:root {
+  /* 字体：鸿蒙黑体优先 */
+  --font-ui: 'HarmonyOS Sans SC', 'Inter', -apple-system, BlinkMacSystemFont,
+             'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+/*
+   Motion layer
+   `html:root` intentionally has higher specificity than Hanako's later `:root`
+   token block, because this file is imported before the bundled stylesheet.
+*/
+html:root {
+  /* 让 hover 依旧轻快，面板/弹层多一点呼吸感 */
+  --duration-instant: 0.14s;
+  --duration-fast: 0.22s;
+  --duration-slow: 0.36s;
+
+  /* iOS/macOS 风格：前段快、尾段长，避免机械匀速感 */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.32, 0, 0.67, 0);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-smooth: cubic-bezier(0.37, 0, 0.16, 1);
+  --ease-out-back: cubic-bezier(0.2, 1.12, 0.32, 1);
+
+  --slide-y: 6px;
+  --motion-hover-y: -1px;
+  --motion-enter-y: 8px;
+  --motion-enter-scale: 0.985;
+}
+
+html body {
+  scroll-behavior: smooth;
+}
+
+html body :where(
+  button,
+  [role='button'],
+  a,
+  summary,
+  input,
+  textarea,
+  select,
+  .titlebar,
+  .sidebar,
+  .msg-card,
+  .input-wrapper,
+  .hana-toast,
+  .yuan-chip,
+  .provider-card,
+  .ob-provider-trigger,
+  .ob-provider-menu,
+  .model-list,
+  .tutorial-card,
+  .browser-floating-card,
+  .float-sidebar,
+  .float-sidebar-panel
+) {
+  transition-property: background-color, background, color, border-color, box-shadow, opacity, transform, filter;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-standard) !important;
+}
+
+html body :where(
+  .hana-toast,
+  .ob-provider-menu,
+  .model-list,
+  .browser-floating-card,
+  .float-sidebar,
+  .float-sidebar-panel,
+  [role='dialog'],
+  [role='menu'],
+  [data-radix-popper-content-wrapper]
+) {
+  animation-timing-function: var(--ease-out) !important;
+}
+
+html body :where(button, [role='button']):not(:disabled) {
+  transform-origin: center;
+}
+
+html body :where(button, [role='button']):not(:disabled):active {
+  transform: translateY(0) scale(0.985);
+  transition-duration: var(--duration-instant) !important;
+}
+
+html body :where(
+  .hana-toast,
+  .ob-provider-menu,
+  .model-list,
+  .browser-floating-card,
+  .provider-card,
+  .tutorial-card,
+  [role='dialog'],
+  [role='menu']
+) {
+  --slide-y: var(--motion-enter-y);
+}
