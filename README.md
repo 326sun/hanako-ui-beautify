@@ -1,43 +1,40 @@
 # Hana UI Beautify
 
-> **WARNING — Full-Access Plugin**
+> **警告 — 全权限插件**
 >
-> This plugin modifies `resources/app.asar` inside the Hanako install directory.
-> On Windows, `C:\Program Files\Hanako` typically requires **administrator permission**
-> for writes. The plugin backs up `app.asar` to `app.asar.bak` before any change,
-> but **always run the `restore` tool before uninstalling** — otherwise the visual
-> patch persists after plugin removal.
+> 此插件会修改 Hanako 安装目录下的 `resources/app.asar`。
+> 在 Windows 上，`C:\Program Files\Hanako` 通常需要**管理员权限**才能写入。
+> 插件在修改前会将 `app.asar` 备份为 `app.asar.bak`，
+> 但**卸载前务必先执行 `restore` 工具**——否则视觉补丁会在删除插件后残留。
 
-Plugin-managed UI beautify pack for the [Hanako](https://github.com/liliMozi/openhanako) desktop app.
+[Hanako](https://github.com/liliMozi/openhanako) 桌面应用的插件式 UI 美化包。
 
-## What It Does
+## 功能
 
-Replaces Hanako's default UI font with **HarmonyOS Sans SC** (鸿蒙黑体) and injects
-unified motion tokens for smoother transitions. The entire operation is a reversible
-CSS-only patch on `app.asar` — no JavaScript logic is touched.
+将 Hanako 默认 UI 字体替换为** HarmonyOS Sans SC（鸿蒙黑体）**，并注入统一动效曲线，
+让界面过渡更流畅。整个操作是对 `app.asar` 的可逆 CSS 补丁，不触碰任何 JS 逻辑。
 
-- **Font replacement**: 4 weight-variant WOFF2 files (Light / Regular / Medium / Bold)
-- **Motion tokens**: Apple Spring Animation easing curves for UI transitions
-- **Reversible**: `apply` / `restore` tools with automatic backup
+- **字体替换**：4 个字重 WOFF2 文件（Light / Regular / Medium / Bold）
+- **动效标记**：Apple Spring Animation 缓动曲线
+- **可逆操作**：`apply` / `restore` 工具，自动备份
 
-## Architecture
+## 架构
 
 ```
 npm install ──→ install.cjs ──→ ~/.hanako/plugins/hana-ui-beautify/
                                       │
-Hanako startup ──→ onload() ──→ auto-detect ──→ apply if clean
+Hanako 启动 ──→ onload() ──→ 自动检测 ──→ 未注入则 apply
                                       │
-Agent tools ──→ status / apply / restore ──→ beautify-core.js
+Agent 工具 ──→ status / apply / restore ──→ beautify-core.js
                                       │
-                                      └── @electron/asar ──→ app.asar CSS patch
+                                      └── @electron/asar ──→ app.asar CSS 补丁
 ```
 
-The plugin does **not** require Hanako's renderer API. It manages the asset patch
-directly via `@electron/asar`, which is why it needs full-access trust. The inline
-CSS is appended to `styles.css` inside `app.asar` with `/* hana-beautify:begin */`
-and `/* hana-beautify:end */` markers for clean removal.
+插件不依赖 Hanako 的渲染器 API，而是通过 `@electron/asar` 直接管理资源补丁，
+因此需要全权限信任。内联 CSS 以 `/* hana-beautify:begin */` 和
+`/* hana-beautify:end */` 标记追加到 `app.asar` 内的 `styles.css` 末尾，便于干净移除。
 
-## Install
+## 安装
 
 ```powershell
 git clone https://github.com/326sun/hana-ui-beautify.git
@@ -46,97 +43,95 @@ npm install
 npm run install-plugin
 ```
 
-Then restart Hanako and enable from **Settings → Plugins**:
+重启 Hanako，在 **设置 → 插件** 中：
 
-1. Toggle **Allow full-access plugins**
-2. Enable **Hana UI Beautify**
+1. 打开 **允许全权限插件**
+2. 启用 **Hana UI Beautify**
 
-If `C:\Program Files\Hanako\resources` is writable, the plugin auto-applies on
-first load. Otherwise, run Hanako once as administrator or invoke the `apply`
-tool from an elevated session.
+如果 `C:\Program Files\Hanako\resources` 可写，插件首次加载时自动 apply。
+否则需要以管理员身份运行一次 Hanako，或从提权会话调用 `apply` 工具。
 
-## Tools
+## 工具
 
-| Tool | Description |
-|------|-------------|
-| `status` | Check whether beautify is applied and whether the install directory is writable |
-| `apply` | Apply (or force reapply) the beautify CSS patch |
-| `restore` | Restore `app.asar` from `app.asar.bak` |
+| 工具 | 说明 |
+|------|------|
+| `status` | 检查美化是否已应用、安装目录是否可写 |
+| `apply` | 应用（或强制重新应用）美化 CSS 补丁 |
+| `restore` | 从 `app.asar.bak` 恢复原始 `app.asar` |
 
-## Configuration
+## 配置
 
-The plugin exposes two settings via Hanako's plugin configuration panel:
+插件在 Hanako 的插件配置面板中暴露两个设置项：
 
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| `autoApply` | boolean | `true` | Automatically apply beautify on plugin load |
-| `hanakoInstallDir` | string | `C:\Program Files\Hanako` | Path to the Hanako installation |
+| 键 | 类型 | 默认值 | 说明 |
+|-----|------|--------|------|
+| `autoApply` | 布尔 | `true` | 插件加载时自动应用美化 |
+| `hanakoInstallDir` | 字符串 | `C:\Program Files\Hanako` | Hanako 安装路径 |
 
-## Uninstall
+## 卸载
 
-1. Run the `restore` tool to revert `app.asar`
-2. Disable the plugin in Settings → Plugins
-3. Delete `~/.hanako/plugins/hana-ui-beautify/`
+1. 执行 `restore` 工具还原 `app.asar`
+2. 在 设置 → 插件 中禁用插件
+3. 删除 `~/.hanako/plugins/hana-ui-beautify/`
 
-If the plugin is already removed, manually copy `app.asar.bak` back to `app.asar`:
+如果插件已被删除，手动将 `app.asar.bak` 复制回 `app.asar`：
 
 ```powershell
 copy C:\Program Files\Hanako\resources\app.asar.bak C:\Program Files\Hanako\resources\app.asar
 ```
 
-## Font License
+## 字体许可
 
-HarmonyOS Sans SC fonts are provided by **Huawei Device Co., Ltd.** under the
-[HarmonyOS Sans Fonts License Agreement](https://gitee.com/openharmony/global_system_resources/blob/master/LICENSE_Fonts).
-See [`fonts/LICENSE_Fonts`](./fonts/LICENSE_Fonts) for the full text.
+HarmonyOS Sans SC 字体由**华为终端有限公司**提供，基于
+[HarmonyOS Sans Fonts License Agreement](https://gitee.com/openharmony/global_system_resources/blob/master/LICENSE_Fonts) 授权。
+详见 [`fonts/LICENSE_Fonts`](./fonts/LICENSE_Fonts)。
 
-By using this plugin you agree to:
+使用此插件即表示你同意：
 
-- Retain the copyright notice and license in any copies
-- Include a prominent notice that HarmonyOS Sans Fonts are used
-- Not redistribute or sell the font files on a stand-alone basis
+- 在任何副本中保留版权声明和许可协议
+- 在软件中显著声明使用了 HarmonyOS Sans 字体
+- 不得以独立形式重新分发或销售字体文件
 
-Font source: [OpenHarmony global_system_resources](https://gitee.com/openharmony/global_system_resources)
+字体来源：[OpenHarmony global_system_resources](https://gitee.com/openharmony/global_system_resources)
 
-## Contributing
+## 参与贡献
 
-This plugin is part of the [`hanako-supplement`](https://github.com/326sun/hanako-supplement)
-monorepo. Contributions are welcome:
+此插件属于 [`hanako-supplement`](https://github.com/326sun/hanako-supplement) 系列。
+欢迎提交贡献：
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feat/your-feature`)
-3. Commit your changes (`git commit -m 'feat: description'`)
-4. Push to the branch (`git push origin feat/your-feature`)
-5. Open a Pull Request
+1. Fork 本仓库
+2. 创建特性分支（`git checkout -b feat/你的特性`）
+3. 提交修改（`git commit -m 'feat: 简短描述'`）
+4. 推送到分支（`git push origin feat/你的特性`）
+5. 发起 Pull Request
 
-Before submitting, run:
+提交前请运行：
 
 ```powershell
 npm run check
 ```
 
-The check script validates syntax for all source files. The plugin source is
-ESM (`.js` with `"type": "module"` in `package.json`). The install script uses
-CommonJS (`.cjs` extension) to avoid module resolution conflicts.
+此命令校验所有源文件的语法。插件源码使用 ESM（`.js` 文件配合 `package.json` 中的
+`"type": "module"`），安装脚本使用 CommonJS（`.cjs` 扩展名）。
 
-### Project Structure
+### 项目结构
 
 ```
 hana-ui-beautify/
-├── install.cjs          # Plugin installer (CommonJS)
-├── package.json         # ESM declaration + @electron/asar dependency
-├── manifest.json        # Hanako plugin manifest
-├── index.js             # Plugin entry point (onload)
-├── theme.css            # CSS patch (fonts + motion tokens)
-├── fonts/               # HarmonyOS Sans SC WOFF2 files + LICENSE_Fonts
+├── install.cjs          # 插件安装器（CommonJS）
+├── package.json         # ESM 声明 + @electron/asar 依赖
+├── manifest.json        # Hanako 插件清单
+├── index.js             # 插件入口（onload）
+├── theme.css            # CSS 补丁（字体 + 动效标记）
+├── fonts/               # HarmonyOS Sans SC WOFF2 文件 + LICENSE_Fonts
 ├── lib/
-│   └── beautify-core.js # Core logic: apply, restore, status
+│   └── beautify-core.js # 核心逻辑：apply / restore / status
 └── tools/
-    ├── status.js        # Agent tool: check beautify state
-    ├── apply.js         # Agent tool: apply beautify
-    └── restore.js       # Agent tool: restore original asar
+    ├── status.js        # Agent 工具：检查美化状态
+    ├── apply.js         # Agent 工具：应用美化
+    └── restore.js       # Agent 工具：恢复原始 asar
 ```
 
-## License
+## 许可证
 
-Plugin code: MIT. Font files: see [Font License](#font-license).
+插件代码：MIT。字体文件：见[字体许可](#字体许可)。
