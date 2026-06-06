@@ -2,7 +2,7 @@
 /**
  * Install Hana UI Beautify as a community Hanako plugin.
  *
- * This installs the plugin into ~/.hanako/plugins/hana-ui-beautify.
+ * This installs the plugin into ~/.hanako/plugins/hanako-ui-beautify.
  * The plugin itself applies/restores the renderer CSS patch when enabled.
  */
 
@@ -10,7 +10,7 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 
-const PLUGIN_NAME = "hana-ui-beautify";
+const PLUGIN_NAME = "hanako-ui-beautify";
 const PLUGIN_SRC = __dirname;
 const PLUGIN_DEST = path.join(os.homedir(), ".hanako", "plugins", PLUGIN_NAME);
 const NODE_MODULES_SRC = path.join(PLUGIN_SRC, "node_modules");

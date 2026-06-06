@@ -23,14 +23,14 @@ export default class HanaUiBeautifyPlugin {
       if (config.autoApply !== false && !status.applied) {
         const result = await applyBeautify(ctx.pluginDir, config);
         state = { ...state, lastAutoApply: new Date().toISOString(), lastResult: result };
-        ctx.log.info(`hana-ui-beautify: ${result.message}`);
+        ctx.log.info(`hanako-ui-beautify: ${result.message}`);
       } else {
         state = { ...state, lastStatus: status, lastChecked: new Date().toISOString() };
-        ctx.log.info(`hana-ui-beautify: loaded, applied=${status.applied}`);
+        ctx.log.info(`hanako-ui-beautify: loaded, applied=${status.applied}`);
       }
     } catch (err) {
       state = { ...state, lastError: err.message, lastErrorAt: new Date().toISOString() };
-      ctx.log.warn(`hana-ui-beautify: auto apply skipped: ${err.message}`);
+      ctx.log.warn(`hanako-ui-beautify: auto apply skipped: ${err.message}`);
     }
 
     try {
