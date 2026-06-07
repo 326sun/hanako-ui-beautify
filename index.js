@@ -1,7 +1,19 @@
 import fs from "fs";
 import path from "path";
+import { createRequire } from "module";
 import { definePlugin } from "./lib/hana-runtime-compat.js";
-import { PLUGIN_VERSION, initPluginVersion, applyBeautify, getStatus, resolvePaths } from "./lib/beautify-core.js";
+
+const pluginRequire = createRequire(import.meta.url);
+
+// Dependency self-check: beautify-core.js depends on @electron/asar.
+// If this module is missing (e.g. node_modules not installed), the plugin
+// degrades gracefully instead of crashing the entire Hanako process.
+let depsOk = true;
+try {
+  pluginRequire("@electron/asar");
+} catch {
+  depsOk = false;
+}
 
 const runtimeState = {
   autoApplyTimer: null,
@@ -9,6 +21,19 @@ const runtimeState = {
 
 export default definePlugin({
   async onload(ctx) {
+    if (!depsOk) {
+      ctx.log.error(
+        `[hanako-ui-beautify] Cannot load: @electron/asar not found. ` +
+        `Install dependencies: npm install --prefix "${ctx.pluginDir}"`
+      );
+      return;
+    }
+
+    // Dynamic import: keep beautify-core out of the static module graph
+    // so a missing @electron/asar doesn't crash the whole plugin load.
+    const { PLUGIN_VERSION, initPluginVersion, applyBeautify, getStatus, resolvePaths } =
+      await import("./lib/beautify-core.js");
+
     initPluginVersion(ctx.pluginDir);
     const statePath = path.join(ctx.dataDir, "state.json");
     fs.mkdirSync(ctx.dataDir, { recursive: true });
