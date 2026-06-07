@@ -2,7 +2,7 @@
   "manifestVersion": 1,
   "id": "hanako-ui-beautify",
   "name": "Hana UI Beautify",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Hanako 官方客户端美化包：鸿蒙黑体、macOS 风格动效曲线和统一 motion tokens。",
   "author": "Sun",
   "trust": "full-access",
