@@ -16,6 +16,8 @@
   font-weight: 400;
   font-style: normal;
   font-display: swap;
+  ascent-override: 100%;
+  descent-override: 24%;
 }
 
 @font-face {
@@ -25,6 +27,8 @@
   font-weight: 300;
   font-style: normal;
   font-display: swap;
+  ascent-override: 100%;
+  descent-override: 24%;
 }
 
 @font-face {
@@ -34,6 +38,8 @@
   font-weight: 500;
   font-style: normal;
   font-display: swap;
+  ascent-override: 100%;
+  descent-override: 24%;
 }
 
 @font-face {
@@ -43,6 +49,8 @@
   font-weight: 700;
   font-style: normal;
   font-display: swap;
+  ascent-override: 100%;
+  descent-override: 24%;
 }
 
 /* ── 覆盖设计变量 ── */
@@ -81,6 +89,15 @@ html body {
   scroll-behavior: smooth;
 }
 
+/*
+   过渡分层策略：
+   - 交互元素（按钮、链接、输入等）：全属性过渡，用户操作时保持流畅
+   - 结构容器（侧边栏、卡片等）：仅 transform/opacity/border-color，避免首次渲染时
+     background-color/color 过渡在 FOUT/FOIT 期间触发大范围闪烁
+   - float-sidebar 交由 motion@12.40 的 AnimatePresence 驱动，不再注 CSS transition
+*/
+
+/* Layer 1 — 交互元素：保留完整过渡 */
 html body :where(
   button,
   [role='button'],
@@ -89,33 +106,41 @@ html body :where(
   input,
   textarea,
   select,
+  .yuan-chip,
+  .ob-provider-trigger
+) {
+  transition-property: background-color, background, color, border-color, box-shadow, opacity, transform, filter;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-standard) !important;
+  will-change: auto;
+}
+
+/* Layer 2 — 结构容器：轻量过渡，不含 background-color/background/color
+   这些元素首次渲染时可能从初始态过渡到终态，
+   background/color 过渡会导致可见的"闪烁" */
+html body :where(
   .titlebar,
   .sidebar,
   .msg-card,
   .input-wrapper,
   .hana-toast,
-  .yuan-chip,
-  .provider-card,
-  .ob-provider-trigger,
   .ob-provider-menu,
   .model-list,
+  .provider-card,
   .tutorial-card,
-  .browser-floating-card,
-  .float-sidebar,
-  .float-sidebar-panel
+  .browser-floating-card
 ) {
-  transition-property: background-color, background, color, border-color, box-shadow, opacity, transform, filter;
+  transition-property: border-color, box-shadow, opacity, transform, filter;
   transition-duration: var(--duration-fast);
   transition-timing-function: var(--ease-standard) !important;
 }
 
+/* Layer 3 — 弹出层动画：使用 ease-out 曲线 */
 html body :where(
   .hana-toast,
   .ob-provider-menu,
   .model-list,
   .browser-floating-card,
-  .float-sidebar,
-  .float-sidebar-panel,
   [role='dialog'],
   [role='menu'],
   [data-radix-popper-content-wrapper]
@@ -123,6 +148,7 @@ html body :where(
   animation-timing-function: var(--ease-out) !important;
 }
 
+/* 按压反馈：微缩 */
 html body :where(button, [role='button']):not(:disabled) {
   transform-origin: center;
 }
@@ -132,6 +158,7 @@ html body :where(button, [role='button']):not(:disabled):active {
   transition-duration: var(--duration-instant) !important;
 }
 
+/* 弹出原点位移 */
 html body :where(
   .hana-toast,
   .ob-provider-menu,
@@ -143,6 +170,40 @@ html body :where(
   [role='menu']
 ) {
   --slide-y: var(--motion-enter-y);
+}
+
+/* ── 无障碍：尊重系统减弱动效偏好 ── */
+@media (prefers-reduced-motion: reduce) {
+  html:root {
+    --duration-instant: 0s;
+    --duration-fast: 0s;
+    --duration-slow: 0s;
+  }
+
+  html body :where(
+    button,
+    [role='button'],
+    a,
+    summary,
+    input,
+    textarea,
+    select,
+    .yuan-chip,
+    .ob-provider-trigger,
+    .titlebar,
+    .sidebar,
+    .msg-card,
+    .input-wrapper,
+    .hana-toast,
+    .ob-provider-menu,
+    .model-list,
+    .provider-card,
+    .tutorial-card,
+    .browser-floating-card
+  ) {
+    transition: none !important;
+    animation: none !important;
+  }
 }
 
 /* ── 强制字体覆盖 ── */

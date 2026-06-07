@@ -9,6 +9,7 @@
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
+const { execSync } = require("child_process");
 
 const PLUGIN_NAME = "hanako-ui-beautify";
 const PLUGIN_SRC = __dirname;
@@ -19,7 +20,8 @@ const FONTS_SRC = path.join(PLUGIN_SRC, "fonts");
 console.log("Hana UI Beautify - plugin installer");
 console.log("=".repeat(50));
 
-console.log("\n[1/4] Check dependencies...");
+// ── Prerequisite checks ──
+console.log("\n[1/5] Check dependencies...");
 if (!fs.existsSync(path.join(NODE_MODULES_SRC, "@electron", "asar"))) {
   console.error("  Missing @electron/asar. Run npm install in the plugin directory first.");
   process.exit(1);
@@ -30,13 +32,69 @@ if (!fs.existsSync(path.join(FONTS_SRC, "harmonyos-sans-sc-regular.woff2"))) {
 }
 console.log("  Dependencies found");
 
-console.log("\n[2/4] Clean old install...");
+// ── Syntax check ──
+console.log("\n[2/5] Syntax check before install...");
+const JS_FILES = [
+  "index.js",
+  "lib/beautify-core.js",
+  "lib/hana-runtime-compat.js",
+  "tools/status.js",
+  "tools/apply.js",
+  "tools/restore.js",
+];
+let syntaxOk = true;
+for (const file of JS_FILES) {
+  const fullPath = path.join(PLUGIN_SRC, file);
+  if (!fs.existsSync(fullPath)) {
+    console.log(`  MISS  ${file}`);
+    syntaxOk = false;
+    continue;
+  }
+  try {
+    execSync(`node --check "${fullPath}"`, { stdio: "pipe" });
+    console.log(`  OK    ${file}`);
+  } catch (err) {
+    console.log(`  FAIL  ${file}: ${err.stderr?.toString().trim() || err.message}`);
+    syntaxOk = false;
+  }
+}
+
+// Validate manifest.json
+try {
+  JSON.parse(fs.readFileSync(path.join(PLUGIN_SRC, "manifest.json"), "utf-8"));
+  console.log("  OK    manifest.json (valid JSON)");
+} catch (err) {
+  console.log(`  FAIL  manifest.json: ${err.message}`);
+  syntaxOk = false;
+}
+
+// Version consistency
+try {
+  const manifest = JSON.parse(fs.readFileSync(path.join(PLUGIN_SRC, "manifest.json"), "utf-8"));
+  const pkg = JSON.parse(fs.readFileSync(path.join(PLUGIN_SRC, "package.json"), "utf-8"));
+  if (manifest.version !== pkg.version) {
+    console.log(`  WARN  version mismatch: manifest=${manifest.version}, package=${pkg.version}`);
+  } else {
+    console.log(`  OK    version consistent: ${manifest.version}`);
+  }
+} catch (err) {
+  console.log(`  WARN  version consistency check failed: ${err.message}`);
+}
+
+if (!syntaxOk) {
+  console.error("\nSyntax errors found. Fix them before installing.");
+  process.exit(1);
+}
+
+// ── Clean ──
+console.log("\n[3/5] Clean old install...");
 if (fs.existsSync(PLUGIN_DEST)) {
   fs.rmSync(PLUGIN_DEST, { recursive: true, force: true });
   console.log("  Removed old version");
 }
 
-console.log("\n[3/4] Copy plugin...");
+// ── Copy ──
+console.log("\n[4/5] Copy plugin...");
 const filesToCopy = ["manifest.json", "index.js", "theme.css", "package.json", "README.md", "INSTALL.md", "LICENSE"];
 const dirsToCopy = ["lib", "tools"];
 fs.mkdirSync(PLUGIN_DEST, { recursive: true });
@@ -50,7 +108,8 @@ fs.cpSync(FONTS_SRC, path.join(PLUGIN_DEST, "fonts"), { recursive: true });
 fs.cpSync(NODE_MODULES_SRC, path.join(PLUGIN_DEST, "node_modules"), { recursive: true });
 console.log(`  Installed to ${PLUGIN_DEST}`);
 
-console.log("\n[4/4] Verify...");
+// ── Verify deployed files ──
+console.log("\n[5/5] Verify...");
 const checks = [
   "package.json",
   "README.md",
@@ -62,6 +121,7 @@ const checks = [
   "fonts/harmonyos-sans-sc-regular.woff2",
   "fonts/LICENSE_Fonts",
   "lib/beautify-core.js",
+  "lib/hana-runtime-compat.js",
   "tools/status.js",
   "tools/apply.js",
   "tools/restore.js",

@@ -1,10 +1,15 @@
 import fs from "fs";
 import path from "path";
-import { applyBeautify, getStatus } from "./lib/beautify-core.js";
+import { definePlugin } from "./lib/hana-runtime-compat.js";
+import { PLUGIN_VERSION, initPluginVersion, applyBeautify, getStatus, resolvePaths } from "./lib/beautify-core.js";
 
-export default class HanaUiBeautifyPlugin {
-  async onload() {
-    const ctx = this.ctx;
+const runtimeState = {
+  autoApplyTimer: null,
+};
+
+export default definePlugin({
+  async onload(ctx) {
+    initPluginVersion(ctx.pluginDir);
     const statePath = path.join(ctx.dataDir, "state.json");
     fs.mkdirSync(ctx.dataDir, { recursive: true });
 
@@ -19,10 +24,15 @@ export default class HanaUiBeautifyPlugin {
     } catch {}
 
     try {
-      const status = await getStatus(ctx.pluginDir, config);
-      state = { ...state, lastStatus: status, lastChecked: new Date().toISOString() };
-      if (config.autoApply !== false && !status.applied) {
-        this._autoApplyTimer = setTimeout(async () => {
+      const paths = resolvePaths(ctx.pluginDir, config);
+      const asarMtimeMs = fs.existsSync(paths.asarPath) ? fs.statSync(paths.asarPath).mtimeMs : 0;
+      const cacheValid = state.pluginVersion === PLUGIN_VERSION
+        && state.asarMtimeMs === asarMtimeMs
+        && state.lastStatus;
+      const status = cacheValid ? state.lastStatus : await getStatus(ctx.pluginDir, config);
+      state = { ...state, pluginVersion: PLUGIN_VERSION, asarMtimeMs, lastStatus: status, lastChecked: new Date().toISOString() };
+      if (config.autoApply === true && !status.applied) {
+        runtimeState.autoApplyTimer = setTimeout(async () => {
           let nextState = state;
           try {
             const result = await applyBeautify(ctx.pluginDir, config);
@@ -36,7 +46,7 @@ export default class HanaUiBeautifyPlugin {
             fs.writeFileSync(statePath, JSON.stringify(nextState, null, 2), "utf-8");
           } catch {}
         }, 500);
-        this._autoApplyTimer.unref?.();
+        runtimeState.autoApplyTimer.unref?.();
         ctx.log.info("hanako-ui-beautify: queued background auto apply");
       } else {
         ctx.log.info(`hanako-ui-beautify: loaded, applied=${status.applied}`);
@@ -49,9 +59,10 @@ export default class HanaUiBeautifyPlugin {
     try {
       fs.writeFileSync(statePath, JSON.stringify(state, null, 2), "utf-8");
     } catch {}
-  }
+  },
 
-  async onunload() {
-    if (this._autoApplyTimer) clearTimeout(this._autoApplyTimer);
-  }
-}
+  async onunload(ctx) {
+    if (runtimeState.autoApplyTimer) clearTimeout(runtimeState.autoApplyTimer);
+    runtimeState.autoApplyTimer = null;
+  },
+});

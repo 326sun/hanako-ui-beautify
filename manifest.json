@@ -1,8 +1,9 @@
 {
+  "manifestVersion": 1,
   "id": "hanako-ui-beautify",
   "name": "Hana UI Beautify",
-  "version": "0.1.4",
-  "description": "Plugin-managed UI beautify pack for official Hanako: HarmonyOS Sans SC fonts and unified motion tokens.",
+  "version": "0.1.8",
+  "description": "Hanako 官方客户端美化包：鸿蒙黑体、macOS 风格动效曲线和统一 motion tokens。",
   "author": "Sun",
   "trust": "full-access",
   "capabilities": {
@@ -15,13 +16,13 @@
       "properties": {
         "autoApply": {
           "type": "boolean",
-          "title": "Auto apply beautify patch",
+          "title": "启动时自动应用美化补丁",
           "default": false
         },
         "hanakoInstallDir": {
           "type": "string",
-          "title": "Hanako install directory",
-          "default": "C:\\Program Files\\HanaAgent"
+          "title": "Hanako 安装目录",
+          "default": "C:\\Program Files\\Hanako"
         }
       }
     }
