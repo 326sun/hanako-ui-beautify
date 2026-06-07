@@ -8,6 +8,7 @@ const tool = defineTool({
   type: "object",
   properties: {
     hanakoInstallDir: { type: "string", description: "Optional Hanako install directory." },
+    backupPath: { type: "string", description: "Optional backup app.asar path to restore from." },
   },
   required: [],
   },
