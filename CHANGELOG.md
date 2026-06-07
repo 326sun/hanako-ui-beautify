@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0
+
+- beautify-core 重写：补丁注入逻辑重构，路径替换和 asar 处理更稳健
+- restore 工具修复
+
 ## 0.1.9
 
 - `buildInlineThemeCss` 路径替换改用正则，匹配 `url(./fonts/`、`url('./fonts/`、`url("./fonts/` 三种格式
