@@ -23,6 +23,7 @@ export default definePlugin({
       if (fs.existsSync(statePath)) state = JSON.parse(fs.readFileSync(statePath, "utf-8"));
     } catch {}
 
+    let autoApplyQueued = false;
     try {
       const paths = resolvePaths(ctx.pluginDir, config);
       const asarMtimeMs = fs.existsSync(paths.asarPath) ? fs.statSync(paths.asarPath).mtimeMs : 0;
@@ -32,6 +33,7 @@ export default definePlugin({
       const status = cacheValid ? state.lastStatus : await getStatus(ctx.pluginDir, config);
       state = { ...state, pluginVersion: PLUGIN_VERSION, asarMtimeMs, lastStatus: status, lastChecked: new Date().toISOString() };
       if (config.autoApply === true && !status.applied) {
+        autoApplyQueued = true;
         runtimeState.autoApplyTimer = setTimeout(async () => {
           let nextState = state;
           try {
@@ -56,9 +58,12 @@ export default definePlugin({
       ctx.log.warn(`hanako-ui-beautify: auto apply skipped: ${err.message}`);
     }
 
-    try {
-      fs.writeFileSync(statePath, JSON.stringify(state, null, 2), "utf-8");
-    } catch {}
+    // Write state only if autoApply was NOT queued (setTimeout will write it with the result)
+    if (!autoApplyQueued) {
+      try {
+        fs.writeFileSync(statePath, JSON.stringify(state, null, 2), "utf-8");
+      } catch {}
+    }
   },
 
   async onunload(ctx) {
