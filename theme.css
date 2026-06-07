@@ -7,46 +7,13 @@
    ======================================== */
 
 /* ── HarmonyOS Sans SC（鸿蒙黑体）── */
-/* 字体文件需与 sun-enhance.css 放在同一目录下的 fonts/ 子目录 */
-
-@font-face {
-  font-family: 'HarmonyOS Sans SC';
-  src: local('HarmonyOS Sans SC'), local('HarmonyOS_Sans_SC'),
-       url('./fonts/harmonyos-sans-sc-regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-  ascent-override: 100%;
-  descent-override: 24%;
-}
-
-@font-face {
-  font-family: 'HarmonyOS Sans SC';
-  src: local('HarmonyOS Sans SC Light'), local('HarmonyOS_Sans_SC_Light'),
-       url('./fonts/harmonyos-sans-sc-light.woff2') format('woff2');
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-  ascent-override: 100%;
-  descent-override: 24%;
-}
+/* 单一字重 Medium (500)，暗色 UI 最优；浏览器合成其他字重 */
 
 @font-face {
   font-family: 'HarmonyOS Sans SC';
   src: local('HarmonyOS Sans SC Medium'), local('HarmonyOS_Sans_SC_Medium'),
        url('./fonts/harmonyos-sans-sc-medium.woff2') format('woff2');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-  ascent-override: 100%;
-  descent-override: 24%;
-}
-
-@font-face {
-  font-family: 'HarmonyOS Sans SC';
-  src: local('HarmonyOS Sans SC Bold'), local('HarmonyOS_Sans_SC_Bold'),
-       url('./fonts/harmonyos-sans-sc-bold.woff2') format('woff2');
-  font-weight: 700;
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
   ascent-override: 100%;
