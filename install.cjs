@@ -14,7 +14,6 @@ const { execSync } = require("child_process");
 const PLUGIN_NAME = "hanako-ui-beautify";
 const PLUGIN_SRC = __dirname;
 const PLUGIN_DEST = path.join(os.homedir(), ".hanako", "plugins", PLUGIN_NAME);
-const NODE_MODULES_SRC = path.join(PLUGIN_SRC, "node_modules");
 const FONTS_SRC = path.join(PLUGIN_SRC, "fonts");
 
 console.log("Hana UI Beautify - plugin installer");
@@ -22,10 +21,6 @@ console.log("=".repeat(50));
 
 // ── Prerequisite checks ──
 console.log("\n[1/5] Check dependencies...");
-if (!fs.existsSync(path.join(NODE_MODULES_SRC, "@electron", "asar"))) {
-  console.error("  Missing @electron/asar. Run npm install in the plugin directory first.");
-  process.exit(1);
-}
 if (!fs.existsSync(path.join(FONTS_SRC, "harmonyos-sans-sc-regular.woff2"))) {
   console.error("  Missing HarmonyOS Sans SC fonts. Expected fonts/*.woff2.");
   process.exit(1);
@@ -105,7 +100,6 @@ for (const dir of dirsToCopy) {
   fs.cpSync(path.join(PLUGIN_SRC, dir), path.join(PLUGIN_DEST, dir), { recursive: true });
 }
 fs.cpSync(FONTS_SRC, path.join(PLUGIN_DEST, "fonts"), { recursive: true });
-fs.cpSync(NODE_MODULES_SRC, path.join(PLUGIN_DEST, "node_modules"), { recursive: true });
 console.log(`  Installed to ${PLUGIN_DEST}`);
 
 // ── Verify deployed files ──
@@ -125,7 +119,6 @@ const checks = [
   "tools/status.js",
   "tools/apply.js",
   "tools/restore.js",
-  "node_modules/@electron/asar/package.json",
 ];
 let ok = true;
 for (const check of checks) {

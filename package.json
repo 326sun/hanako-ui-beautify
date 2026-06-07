@@ -21,7 +21,5 @@
     "check": "node --check index.js && node --check lib/beautify-core.js && node --check lib/hana-runtime-compat.js && node --check tools/status.js && node --check tools/apply.js && node --check tools/restore.js",
     "test": "node --test tests/beautify-core.test.js"
   },
-  "dependencies": {
-    "@electron/asar": "^4.2.0"
-  }
+  "dependencies": {}
 }

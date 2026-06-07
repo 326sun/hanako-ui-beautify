@@ -85,7 +85,7 @@ hanako-ui-beautify_restore
 - ♿ **无障碍** 检测 `prefers-reduced-motion: reduce`，系统开启减弱动效时自动跳过所有动画
 - 🛡️ **安全可逆** 三次校验（源文件、打包产物、部署结果），失败自动回滚
 - 📦 **标记注入** CSS 以 `/* hana-beautify:begin */` 包裹，`restore` 能干净剥离
-- ⚡ **零依赖** 除 `@electron/asar` 外无外部依赖
+- ⚡ **零外部依赖** 纯 Node.js 内置模块实现 ASAR 读写
 
 ---
 
