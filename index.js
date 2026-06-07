@@ -34,6 +34,8 @@ export default definePlugin({
       state = { ...state, pluginVersion: PLUGIN_VERSION, asarMtimeMs, lastStatus: status, lastChecked: new Date().toISOString() };
       if (config.autoApply === true && !status.applied) {
         autoApplyQueued = true;
+        // Write base state now: if onunload clears the timer, the cache is not lost
+        try { fs.writeFileSync(statePath, JSON.stringify(state, null, 2), "utf-8"); } catch {}
         runtimeState.autoApplyTimer = setTimeout(async () => {
           let nextState = state;
           try {
