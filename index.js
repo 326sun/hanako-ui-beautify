@@ -1,7 +1,8 @@
 import fs from "fs";
 import path from "path";
 import { definePlugin } from "./lib/hana-runtime-compat.js";
-import { PLUGIN_VERSION, initPluginVersion, applyBeautify, getStatus, resolvePaths } from "./lib/beautify-core.js";
+import { PLUGIN_VERSION, initPluginVersion, resolvePaths } from "./lib/beautify-core.js";
+import { applyAdaptiveBeautify, getAdaptiveStatus } from "./lib/adaptive-beautify.js";
 
 const runtimeState = {
   autoApplyTimer: null,
@@ -31,7 +32,7 @@ export default definePlugin({
       const cacheValid = state.pluginVersion === PLUGIN_VERSION
         && state.asarMtimeMs === asarMtimeMs
         && state.lastStatus;
-      const status = cacheValid ? state.lastStatus : await getStatus(ctx.pluginDir, config);
+      const status = cacheValid ? state.lastStatus : await getAdaptiveStatus(ctx, config);
       state = { ...state, pluginVersion: PLUGIN_VERSION, asarMtimeMs, lastStatus: status, lastChecked: new Date().toISOString() };
       if (config.autoApply === true && !status.applied) {
         autoApplyQueued = true;
@@ -40,7 +41,7 @@ export default definePlugin({
         runtimeState.autoApplyTimer = setTimeout(async () => {
           let nextState = state;
           try {
-            const result = await applyBeautify(ctx.pluginDir, config);
+            const result = await applyAdaptiveBeautify(ctx, config);
             nextState = { ...nextState, lastAutoApply: new Date().toISOString(), lastResult: result };
             ctx.log.info(`hanako-ui-beautify: ${result.message}`);
           } catch (err) {

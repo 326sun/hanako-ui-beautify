@@ -1,4 +1,4 @@
-import { getStatus } from "../lib/beautify-core.js";
+import { getAdaptiveStatus } from "../lib/adaptive-beautify.js";
 import { defineTool } from "../lib/hana-runtime-compat.js";
 
 const tool = defineTool({
@@ -12,7 +12,7 @@ const tool = defineTool({
   required: [],
   },
   async execute(input = {}, ctx) {
-    const status = await getStatus(ctx.pluginDir, input);
+    const status = await getAdaptiveStatus(ctx, input);
     return JSON.stringify(status, null, 2);
   },
 });

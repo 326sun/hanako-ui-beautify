@@ -2,18 +2,10 @@
 
 ## 0.3.1
 
-- 修复：createPackageWithOptions 回退到 @electron/asar 实现，纯 JS Pickle 打包与 Electron 运行时格式不完全兼容，导致重新打包后其他文件内容错位（症状：页面错乱、语言回退为英语）
-- 纯 JS asar 读取函数（listPackage / extractFile / extractAll）保持零依赖，仅打包路径回归 @electron/asar
-
-## 0.3.0
-
-- 纯 Node.js asar 工具替代 @electron/asar
-- 字体子集化（17.2MB → 6.4MB）
-- Apple Spring 动效曲线六条
-- readHeader off-by-8 修复
-- createPackageWithOptions offset 计算修复
-- apply 部署验证强化
-- README 重写
+- 安全策略改为自适应：优先尝试 Hanako runtime CSS 注入；没有运行时注入能力时，才在无 ASAR integrity 保护的旧版本上使用 ASAR transform。
+- 检测到 Electron ASAR integrity metadata 时拒绝修改 `app.asar`，避免美化后 Hanako 无法启动。
+- `asar-utils` 的通用 list/extract/createPackage 操作接入官方 `@electron/asar`，保留自定义 `transformPackage` 用于安全地替换已有文件并保留 header metadata。
+- `status` 增加 `asarCompatibility`、`runtimeCss`、`supportedStrategies`、`bestStrategy` 和 `selectorReport`，用于判断不同 Hanako 版本的适配状态。
 
 ## 0.2.0
 

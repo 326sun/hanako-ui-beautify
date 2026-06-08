@@ -32,6 +32,9 @@ console.log("\n[2/5] Syntax check before install...");
 const JS_FILES = [
   "index.js",
   "lib/beautify-core.js",
+  "lib/adaptive-beautify.js",
+  "lib/runtime-css.js",
+  "lib/asar-utils.js",
   "lib/hana-runtime-compat.js",
   "tools/status.js",
   "tools/apply.js",
@@ -90,7 +93,7 @@ if (fs.existsSync(PLUGIN_DEST)) {
 
 // ── Copy ──
 console.log("\n[4/5] Copy plugin...");
-const filesToCopy = ["manifest.json", "index.js", "theme.css", "package.json", "README.md", "INSTALL.md", "LICENSE"];
+const filesToCopy = ["manifest.json", "index.js", "theme.css", "package.json", "package-lock.json", "README.md", "INSTALL.md", "LICENSE"].filter((file) => fs.existsSync(path.join(PLUGIN_SRC, file)));
 const dirsToCopy = ["lib", "tools"];
 fs.mkdirSync(PLUGIN_DEST, { recursive: true });
 for (const file of filesToCopy) {
@@ -100,12 +103,27 @@ for (const dir of dirsToCopy) {
   fs.cpSync(path.join(PLUGIN_SRC, dir), path.join(PLUGIN_DEST, dir), { recursive: true });
 }
 fs.cpSync(FONTS_SRC, path.join(PLUGIN_DEST, "fonts"), { recursive: true });
+const pkg = JSON.parse(fs.readFileSync(path.join(PLUGIN_SRC, "package.json"), "utf-8"));
+if (pkg.dependencies && Object.keys(pkg.dependencies).length > 0) {
+  try {
+    execSync("npm install --omit=dev --ignore-scripts --no-audit --no-fund", { cwd: PLUGIN_DEST, stdio: "pipe" });
+    console.log("  Installed runtime dependencies");
+  } catch (err) {
+    const srcNodeModules = path.join(PLUGIN_SRC, "node_modules");
+    if (!fs.existsSync(srcNodeModules)) {
+      throw err;
+    }
+    fs.cpSync(srcNodeModules, path.join(PLUGIN_DEST, "node_modules"), { recursive: true });
+    console.log("  Copied runtime dependencies from source node_modules");
+  }
+}
 console.log(`  Installed to ${PLUGIN_DEST}`);
 
 // ── Verify deployed files ──
 console.log("\n[5/5] Verify...");
 const checks = [
   "package.json",
+  "package-lock.json",
   "README.md",
   "INSTALL.md",
   "LICENSE",
@@ -114,8 +132,12 @@ const checks = [
   "theme.css",
   "fonts/harmonyos-sans-sc-regular.woff2",
   "fonts/LICENSE_Fonts",
+  "lib/adaptive-beautify.js",
+  "lib/runtime-css.js",
+  "lib/asar-utils.js",
   "lib/beautify-core.js",
   "lib/hana-runtime-compat.js",
+  "node_modules/@electron/asar/package.json",
   "tools/status.js",
   "tools/apply.js",
   "tools/restore.js",

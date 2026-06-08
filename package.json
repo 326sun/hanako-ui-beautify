@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "install-plugin": "node install.cjs",
-    "check": "node --check index.js && node --check lib/beautify-core.js && node --check lib/hana-runtime-compat.js && node --check tools/status.js && node --check tools/apply.js && node --check tools/restore.js",
+    "check": "node --check index.js && node --check lib/beautify-core.js && node --check lib/adaptive-beautify.js && node --check lib/runtime-css.js && node --check lib/hana-runtime-compat.js && node --check tools/status.js && node --check tools/apply.js && node --check tools/restore.js",
     "test": "node --test tests/beautify-core.test.js"
   },
   "dependencies": {

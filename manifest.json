@@ -19,6 +19,17 @@
           "title": "启动时自动应用美化补丁",
           "default": false
         },
+        "strategy": {
+          "type": "string",
+          "title": "应用策略",
+          "enum": ["auto", "runtime", "asar"],
+          "default": "auto"
+        },
+        "probeRuntimeCss": {
+          "type": "boolean",
+          "title": "探测未公开的运行时 CSS 注入通道",
+          "default": false
+        },
         "hanakoInstallDir": {
           "type": "string",
           "title": "Hanako 安装目录",
