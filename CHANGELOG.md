@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.3.1
+
+- 修复：createPackageWithOptions 回退到 @electron/asar 实现，纯 JS Pickle 打包与 Electron 运行时格式不完全兼容，导致重新打包后其他文件内容错位（症状：页面错乱、语言回退为英语）
+- 纯 JS asar 读取函数（listPackage / extractFile / extractAll）保持零依赖，仅打包路径回归 @electron/asar
+
+## 0.3.0
+
+- 纯 Node.js asar 工具替代 @electron/asar
+- 字体子集化（17.2MB → 6.4MB）
+- Apple Spring 动效曲线六条
+- readHeader off-by-8 修复
+- createPackageWithOptions offset 计算修复
+- apply 部署验证强化
+- README 重写
+
 ## 0.2.0
 
 - beautify-core 重写：补丁注入逻辑重构，路径替换和 asar 处理更稳健
