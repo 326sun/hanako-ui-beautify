@@ -34,7 +34,16 @@ export default definePlugin({
         && state.lastStatus;
       const status = cacheValid ? state.lastStatus : await getAdaptiveStatus(ctx, config);
       state = { ...state, pluginVersion: PLUGIN_VERSION, asarMtimeMs, lastStatus: status, lastChecked: new Date().toISOString() };
-      if (config.autoApply === true && !status.applied) {
+      // Cooldown: if a previous background apply failed recently for this same
+      // app.asar (unchanged mtime), don't retry on every launch. A Hanako update
+      // (new mtime) or 6h elapsed clears the cooldown.
+      const AUTO_APPLY_RETRY_COOLDOWN_MS = 6 * 60 * 60 * 1000;
+      const erroredRecently = !!state.lastErrorAt
+        && state.lastErrorAsarMtimeMs === asarMtimeMs
+        && Date.now() - new Date(state.lastErrorAt).getTime() < AUTO_APPLY_RETRY_COOLDOWN_MS;
+      if (config.autoApply === true && !status.applied && erroredRecently) {
+        ctx.log.info(`hanako-ui-beautify: auto apply on cooldown after recent failure (${state.lastError}); skipping this launch`);
+      } else if (config.autoApply === true && !status.applied) {
         autoApplyQueued = true;
         // Write base state now: if onunload clears the timer, the cache is not lost
         try { fs.writeFileSync(statePath, JSON.stringify(state, null, 2), "utf-8"); } catch {}
@@ -42,10 +51,10 @@ export default definePlugin({
           let nextState = state;
           try {
             const result = await applyAdaptiveBeautify(ctx, config);
-            nextState = { ...nextState, lastAutoApply: new Date().toISOString(), lastResult: result };
+            nextState = { ...nextState, lastAutoApply: new Date().toISOString(), lastResult: result, lastError: null, lastErrorAt: null, lastErrorAsarMtimeMs: null };
             ctx.log.info(`hanako-ui-beautify: ${result.message}`);
           } catch (err) {
-            nextState = { ...nextState, lastError: err.message, lastErrorAt: new Date().toISOString() };
+            nextState = { ...nextState, lastError: err.message, lastErrorAt: new Date().toISOString(), lastErrorAsarMtimeMs: asarMtimeMs };
             ctx.log.warn(`hanako-ui-beautify: background auto apply skipped: ${err.message}`);
           }
           try {

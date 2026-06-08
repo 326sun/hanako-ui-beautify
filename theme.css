@@ -4,6 +4,11 @@
    ========================================
    安装器会将此文件内联追加到 styles.css 末尾，并修正字体路径。
    这样 motion token 和局部动效覆盖能作为最后一层生效。
+
+   字体策略：
+   - local() 优先：系统已安装鸿蒙黑体时零网络开销
+   - font-display: swap：未安装时浏览器按需下载对应字重
+   - 四字重（300/400/500/700）全部声明，但只在被引用时才触发下载
    ======================================== */
 
 /* ── HarmonyOS Sans SC（鸿蒙黑体）── */
@@ -63,6 +68,14 @@
 
 /*
    Motion layer
+
+   Design intent:
+   - 6 curves map to 6 interaction semantics (appear / disappear / property change /
+     smooth transition / spring overshoot / press feedback)
+   - 3 durations (instant 0.14s / fast 0.22s / slow 0.36s) cover all UI rhythms
+   - Curves replicate iOS Spring Animation: fast initial movement (0-30% progress)
+     followed by gentle deceleration, avoiding the mechanical feel of linear/ease
+
    `html:root` intentionally has higher specificity than Hanako's later `:root`
    token block, because this file is imported before the bundled stylesheet.
 */

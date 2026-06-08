@@ -12,6 +12,9 @@ import {
   INLINE_BEGIN,
   INLINE_END,
   applyBeautify,
+  restoreBeautify,
+  getStatus as getBeautifyStatus,
+  initPluginVersion,
   inspectRendererHealth,
 } from "../lib/beautify-core.js";
 import {
@@ -370,6 +373,34 @@ describe("asar metadata handling", () => {
     }
   });
 
+  // Helper: build a minimal but renderer-health-compliant asar fixture
+  function buildHealthyAsarFixture(asarPath, customFiles = []) {
+    const files = [
+      ["desktop/dist-renderer/index.html", "<html><head></head><body></body></html>"],
+      ["desktop/dist-renderer/settings.html", "<html><head></head><body></body></html>"],
+      ["desktop/dist-renderer/lib/i18n.js", "fetch('locales/zh.json')"],
+      ["desktop/dist-renderer/locales/zh.json", JSON.stringify({ settings: { title: "设置", tabs: { agent: "Agent" }, agent: { title: "Agent" }, save: "保存" } })],
+      ["desktop/dist-renderer/locales/en.json", JSON.stringify({ settings: { title: "Settings", tabs: { agent: "Agent" }, agent: { title: "Agent" }, save: "Save" } })],
+      ...customFiles,
+    ];
+    let offset = 0;
+    const header = { files: {} };
+    const buffers = [];
+    for (const [archivePath, text] of files) {
+      const data = Buffer.from(text, "utf-8");
+      const parts = archivePath.split("/");
+      let node = header;
+      for (let i = 0; i < parts.length - 1; i++) {
+        if (!node.files[parts[i]]) node.files[parts[i]] = { files: {} };
+        node = node.files[parts[i]];
+      }
+      node.files[parts[parts.length - 1]] = { size: data.length, offset: String(offset) };
+      offset += data.length;
+      buffers.push(data);
+    }
+    writeAsarFixture(asarPath, header, buffers);
+  }
+
   it("renderer health detects missing settings i18n keys", () => {
     const dir = tempDir("beautify-renderer-health");
     fs.mkdirSync(dir, { recursive: true });
@@ -406,6 +437,81 @@ describe("asar metadata handling", () => {
       assert.ok(report.missingI18nKeys.includes("desktop/dist-renderer/locales/zh.json:settings.agent.title"));
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("restoreBeautify recovers original asar from backup", async () => {
+    const pluginDir = tempDir("beautify-plugin-restore");
+    const hanakoDir = tempDir("beautify-hanako-restore");
+    const resourcesDir = path.join(hanakoDir, "resources");
+    fs.mkdirSync(path.join(pluginDir, "fonts"), { recursive: true });
+    fs.mkdirSync(resourcesDir, { recursive: true });
+    try {
+      fs.writeFileSync(path.join(pluginDir, "manifest.json"), JSON.stringify({ version: "0.0.0" }), "utf-8");
+      fs.writeFileSync(path.join(pluginDir, "theme.css"), ".x{font-family:test}", "utf-8");
+      fs.writeFileSync(path.join(pluginDir, "fonts", "test.woff2"), "font", "utf-8");
+      initPluginVersion(pluginDir);
+
+      const asarPath = path.join(resourcesDir, "app.asar");
+      const originalCss = "body{color:red}";
+      buildHealthyAsarFixture(asarPath, [["desktop/dist-renderer/styles.css", originalCss]]);
+
+      // Apply beautify
+      const applyResult = await applyBeautify(pluginDir, { hanakoInstallDir: hanakoDir });
+      assert.equal(applyResult.ok, true);
+      assert.equal(applyResult.changed, true);
+
+      // Verify beautify was applied
+      const styled = extractFile(asarPath, "desktop/dist-renderer/styles.css").toString("utf-8");
+      assert.ok(styled.includes(INLINE_BEGIN));
+
+      // Restore
+      const restoreResult = await restoreBeautify(pluginDir, { hanakoInstallDir: hanakoDir });
+      assert.equal(restoreResult.ok, true);
+
+      // Verify restore
+      const restored = extractFile(asarPath, "desktop/dist-renderer/styles.css").toString("utf-8");
+      assert.ok(!restored.includes(INLINE_BEGIN));
+      assert.ok(restored.includes("body{color:red}"));
+    } finally {
+      fs.rmSync(pluginDir, { recursive: true, force: true });
+      fs.rmSync(hanakoDir, { recursive: true, force: true });
+    }
+  });
+
+  it("getStatus reports correct state for pristine and beautified asar", async () => {
+    const pluginDir = tempDir("beautify-plugin-status");
+    const hanakoDir = tempDir("beautify-hanako-status");
+    const resourcesDir = path.join(hanakoDir, "resources");
+    fs.mkdirSync(path.join(pluginDir, "fonts"), { recursive: true });
+    fs.mkdirSync(resourcesDir, { recursive: true });
+    try {
+      fs.writeFileSync(path.join(pluginDir, "manifest.json"), JSON.stringify({ version: "0.0.0" }), "utf-8");
+      fs.writeFileSync(path.join(pluginDir, "theme.css"), ".x{font-family:test}", "utf-8");
+      fs.writeFileSync(path.join(pluginDir, "fonts", "test.woff2"), "font", "utf-8");
+      initPluginVersion(pluginDir);
+
+      const asarPath = path.join(resourcesDir, "app.asar");
+
+      // Phase 1: pristine
+      buildHealthyAsarFixture(asarPath, [["desktop/dist-renderer/styles.css", "body{color:red}"]]);
+      const statusBefore = await getBeautifyStatus(pluginDir, { hanakoInstallDir: hanakoDir });
+      assert.equal(statusBefore.applied, false);
+      assert.equal(statusBefore.markerApplied, false);
+      assert.equal(statusBefore.exists, true);
+      assert.equal(statusBefore.canWrite, true);
+
+      // Phase 2: apply beautify
+      await applyBeautify(pluginDir, { hanakoInstallDir: hanakoDir });
+      const statusAfter = await getBeautifyStatus(pluginDir, { hanakoInstallDir: hanakoDir });
+      assert.equal(statusAfter.applied, true);
+      assert.equal(statusAfter.markerApplied, true);
+      assert.equal(statusAfter.assetsPresent, true);
+      assert.ok(statusAfter.sourceHash);
+      assert.ok(statusAfter.backups.length >= 1);
+    } finally {
+      fs.rmSync(pluginDir, { recursive: true, force: true });
+      fs.rmSync(hanakoDir, { recursive: true, force: true });
     }
   });
 });
