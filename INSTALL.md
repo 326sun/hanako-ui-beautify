@@ -1,6 +1,6 @@
-# Hana UI Beautify 傻瓜安装教程
+# Hanako UI Beautify 安装指南
 
-这个插件用于美化 Hanako UI 字体和动效。它会在你确认后修改 Hanako 的 `resources/app.asar`，所以请按步骤来。
+美化 Hanako UI 字体和动效。应用前需用户确认，按步骤操作即可。
 
 ## 你需要知道的一句话
 
@@ -27,8 +27,8 @@
 
 ```powershell
 cd $env:USERPROFILE\Downloads
-git clone https://github.com/326sun/hanako-ui-beautify.git
-cd hanako-ui-beautify
+git clone https://github.com/326sun/Hanako-ui-beautify.git
+cd Hanako-ui-beautify
 npm install
 npm run install-plugin
 ```
@@ -46,7 +46,7 @@ OK    node_modules/@electron/asar/package.json
 4. 打开 Hanako。
 5. 进入 `设置 -> 插件`。
 6. 打开 `允许全权限插件`。
-7. 启用 `Hana UI Beautify`。
+7. 启用 `Hanako UI Beautify`。
 
 默认情况下，插件只检查状态，不会自动改 `app.asar`。要应用美化，请在 Hanako 中让 Agent 调用：
 
