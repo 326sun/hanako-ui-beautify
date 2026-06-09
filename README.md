@@ -4,12 +4,12 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.3.3-blue" alt="version">
+  <img src="https://img.shields.io/badge/version-0.3.4-blue" alt="version">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="license">
   <img src="https://img.shields.io/badge/platform-Hanako%20Agent%20v0.293%2B-orange" alt="platform">
   <img src="https://img.shields.io/badge/node-%E2%89%A518-brightgreen" alt="node">
   <img src="https://img.shields.io/badge/font-HarmonyOS%20Sans%20SC-lightgrey" alt="font">
-  <img src="https://img.shields.io/badge/tests-22%2F22-success" alt="tests">
+  <img src="https://img.shields.io/badge/tests-23%2F23-success" alt="tests">
 </p>
 
 ---
@@ -65,9 +65,11 @@ hanako-ui-beautify_restore
 - 🎬 **Spring Animation** 六条缓动曲线，三条时长层级，复现 iOS 弹性阻尼感
 - 🏗️ **分层过渡** 交互元素全属性过渡，结构容器仅 transform/opacity/border-color，消除首帧大面积闪烁
 - ♿ **无障碍** 检测 `prefers-reduced-motion: reduce`，系统开启减弱动效时跳过全部动画
-- 🛡️ **安全可逆** 源/产物/部署三次校验 + 自动回滚；锁文件防并发；备份按 SHA256 命名去重
-- 🍎 **macOS 感知** 检测代码签名 → 阻塞 ASAR 路径 → 引导运行时注入，避免 Gatekeeper 拦截
+- 🛡️ **安全可逆** 源/产物/部署三次校验 + 自动回滚；restore 按内容哈希匹配拒绝跨版本误还原；锁文件防并发；备份按 SHA256 命名去重
+- 🍎 **macOS 感知** 检测代码签名 → 阻塞 ASAR 路径 → 引导运行时注入，避免 Gatekeeper 拦截（v0.3.4 修复 macOS 路径映射）
 - 📦 **轻量依赖** 仅 `@electron/asar` 提供格式兼容的 ASAR 读写，核心 transform 自研
+- 💾 **流式 transform** 未改动文件按 1 MiB 分块直拷，峰值内存不随 asar 体积增长
+- 🧊 **失败冷却** 后台 autoApply 失败后 6 小时内不重试同一 asar（mtime 不变），避免每次启动反复失败
 
 ---
 
@@ -154,14 +156,14 @@ hanako-ui-beautify/
 ├── theme.css                # 主题 CSS（字体 + motion tokens + 分层过渡）
 ├── fonts/                   # 鸿蒙黑体 woff2
 ├── tools/                   # status / apply / restore 工具
-├── tests/                   # 22 项测试
+├── tests/                   # 23 项测试
 └── manifest.json
 ```
 
 ```powershell
 npm install
 npm run check   # 语法检查
-npm test        # 22 项测试
+npm test        # 23 项测试
 ```
 
 ---

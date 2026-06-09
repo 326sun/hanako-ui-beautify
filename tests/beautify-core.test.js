@@ -479,6 +479,38 @@ describe("asar metadata handling", () => {
     }
   });
 
+  it("restoreBeautify refuses a mismatched backup when the matching one is gone", async () => {
+    const pluginDir = tempDir("beautify-plugin-mismatch");
+    const hanakoDir = tempDir("beautify-hanako-mismatch");
+    const resourcesDir = path.join(hanakoDir, "resources");
+    fs.mkdirSync(path.join(pluginDir, "fonts"), { recursive: true });
+    fs.mkdirSync(resourcesDir, { recursive: true });
+    try {
+      fs.writeFileSync(path.join(pluginDir, "manifest.json"), JSON.stringify({ version: "0.0.0" }), "utf-8");
+      fs.writeFileSync(path.join(pluginDir, "theme.css"), ".x{font-family:test}", "utf-8");
+      fs.writeFileSync(path.join(pluginDir, "fonts", "test.woff2"), "font", "utf-8");
+      initPluginVersion(pluginDir);
+
+      const asarPath = path.join(resourcesDir, "app.asar");
+      buildHealthyAsarFixture(asarPath, [["desktop/dist-renderer/styles.css", "body{color:red}"]]);
+      await applyBeautify(pluginDir, { hanakoInstallDir: hanakoDir });
+
+      // Simulate the matching backup being pruned away while an unrelated
+      // (different-version) backup remains in the directory.
+      const backupDir = path.join(resourcesDir, ".hana-beautify-backups");
+      for (const name of fs.readdirSync(backupDir)) fs.rmSync(path.join(backupDir, name), { force: true });
+      fs.writeFileSync(path.join(backupDir, "app.asar.deadbeefdeadbeef.bak"), "a different hanako version", "utf-8");
+
+      await assert.rejects(
+        () => restoreBeautify(pluginDir, { hanakoInstallDir: hanakoDir }),
+        /Refusing to restore a different Hanako version/
+      );
+    } finally {
+      fs.rmSync(pluginDir, { recursive: true, force: true });
+      fs.rmSync(hanakoDir, { recursive: true, force: true });
+    }
+  });
+
   it("getStatus reports correct state for pristine and beautified asar", async () => {
     const pluginDir = tempDir("beautify-plugin-status");
     const hanakoDir = tempDir("beautify-hanako-status");

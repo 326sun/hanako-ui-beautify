@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.4
+
+- **修复 INSTALL.md 的灾难恢复命令**：旧文档让用户 `copy app.asar.bak`，但 v0.3.x 的备份实际在 `resources\.hana-beautify-backups\app.asar.<hash>.bak`，照旧文档操作会找不到文件。改为自动定位最近备份的 PowerShell 片段，并修正了被写反的默认安装目录标注（默认为 `Hanako`，`HanaAgent` 为旧版）
+- **restore 拒绝跨版本误还原**：已打补丁的 asar 记录了原始文件的 SHA256，restore 现在只还原内容哈希匹配的备份；匹配备份缺失时拒绝并提示，不再静默回退到"最新备份"（可能是另一个 Hanako 版本，能启动但 UI 不匹配）。可用 `backupPath` 显式覆盖
+- **prune 不再删除当前生效的备份**：`pruneOldBackups` 保护与已部署 asar 对应的那份备份，使其不计入"保留 3 份"配额，避免 force 重应用等场景把还原所需的备份清掉
+- **修复 macOS 路径**：`resources/` → `Contents/Resources/`，Info.plist 与 `_CodeSignature` 检测随之指向正确位置，README 宣传的代码签名/Gatekeeper 感知现在真正生效
+- `transformPackage` 写入按 `writeSync` 返回字节数循环，杜绝罕见的短写截断（写出损坏 app.asar）
+- `getStatus` 与 `apply` 统一根级 `styles.css`/主题文件的识别逻辑
+- 陈旧锁文件重获取的并发竞态改为抛出友好的"另一个操作进行中"而非裸 EEXIST
+- 新增 restore 跨版本拒绝的端到端测试（23 项）
+
 ## 0.3.3
 
 - `transformPackage` 改为流式写入：未改动文件按 1 MiB 分块从源 asar 直接拷贝到目标，峰值内存不再等于整个 app.asar 的体积（大客户端打补丁更省内存）
