@@ -5,11 +5,11 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.3.4-blue" alt="version">
+  <img src="https://img.shields.io/badge/version-0.3.5-blue" alt="version">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="license">
   <img src="https://img.shields.io/badge/platform-Hanako%20Agent%20v0.293%2B-orange" alt="platform">
   <img src="https://img.shields.io/badge/node-%E2%89%A518-brightgreen" alt="node">
-  <img src="https://img.shields.io/badge/tests-23%2F23-success" alt="tests">
+  <img src="https://img.shields.io/badge/tests-33%2F33-success" alt="tests">
 </p>
 
 Hanako 插件。将 Electron 客户端的系统字体替换为**鸿蒙黑体（HarmonyOS Sans SC）**，用 **Apple Spring Animation 曲线**替换默认动效。
@@ -136,14 +136,14 @@ hanako-ui-beautify/
 ├── theme.css                 # 主题 CSS（字体 + motion tokens + 分层过渡）
 ├── fonts/                    # 鸿蒙黑体 woff2
 ├── tools/                    # status / apply / restore
-├── tests/                    # 23 项测试
+├── tests/                    # 33 项测试
 └── manifest.json
 ```
 
 ```powershell
 npm install
 npm run check   # 语法检查
-npm test        # 23 项测试
+npm test        # 33 项测试
 ```
 
 ## License

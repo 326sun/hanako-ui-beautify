@@ -12,7 +12,7 @@
    ======================================== */
 
 /* ── HarmonyOS Sans SC（鸿蒙黑体）── */
-/* 字体文件需与 sun-enhance.css 放在同一目录下的 fonts/ 子目录 */
+/* 安装器把本文件注入为 themes/hana-beautify.css，字体在同目录的 fonts/ 子目录 */
 
 @font-face {
   font-family: 'HarmonyOS Sans SC';
@@ -125,7 +125,6 @@ html body :where(
   transition-property: background-color, background, color, border-color, box-shadow, opacity, transform, filter;
   transition-duration: var(--duration-fast);
   transition-timing-function: var(--ease-standard) !important;
-  will-change: auto;
 }
 
 /* Layer 2 — 结构容器：轻量过渡，不含 background-color/background/color

@@ -1,6 +1,6 @@
 {
   "name": "hanako-ui-beautify",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Plugin-managed UI beautify pack for Hanako: HarmonyOS Sans SC fonts and unified motion tokens.",
   "author": "Sun",
   "license": "MIT",
@@ -20,7 +20,7 @@
   "scripts": {
     "install-plugin": "node install.cjs",
     "check": "node --check index.js && node --check lib/beautify-core.js && node --check lib/adaptive-beautify.js && node --check lib/runtime-css.js && node --check lib/hana-runtime-compat.js && node --check tools/status.js && node --check tools/apply.js && node --check tools/restore.js",
-    "test": "node --test tests/beautify-core.test.js"
+    "test": "node --test tests/beautify-core.test.js tests/runtime-css.test.js"
   },
   "dependencies": {
     "@electron/asar": "^3.4.1"

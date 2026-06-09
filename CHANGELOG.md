@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.5
+
+- **status 反映运行时注入状态**：走 runtime-css 路径成功应用后，`status`/summary 不再显示"未应用"。新增会话级 `runtimeApplied` 信号（进程内、不持久化，确保 autoApply 每次启动仍重新注入），summary 提示"已通过运行时 CSS 注入美化（当前会话生效）"
+- **apply 减少重复磁盘 I/O**：`theme.css` 与字体在 `applyBeautify` 中改为循环外读取一次复用；`getStatus` 新增 `diagnostics` 开关，内部 `before` 快照跳过提取全部 CSS 的 selector 探测与 renderer 健康检查
+- **测试覆盖扩展**（23 → 33 项）：新增 `runtime-css.js` 的注入通道探测/降级/bus 能力门控/probe 开关、运行时应用后状态一致性、以及 `getStatus` diagnostics 开关的单元测试
+- **theme.css 清理**：移除 no-op 的 `will-change: auto`，更正过时的 `sun-enhance.css` 注释
+
 ## 0.3.4
 
 - **修复 INSTALL.md 的灾难恢复命令**：旧文档让用户 `copy app.asar.bak`，但 v0.3.x 的备份实际在 `resources\.hana-beautify-backups\app.asar.<hash>.bak`，照旧文档操作会找不到文件。改为自动定位最近备份的 PowerShell 片段，并修正了被写反的默认安装目录标注（默认为 `Hanako`，`HanaAgent` 为旧版）
