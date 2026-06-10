@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.6
+
+- **`@electron/asar` 改为懒加载**：从 `asar-utils.js` 模块顶层移除同步 `require`，改为首次 ASAR 操作时按需加载。解决 dev-slot 安装因 `node_modules` 未随 `plugin_dev_install` 复制而导致的 `Cannot find module '@electron/asar'` 启动失败。
+
 ## 0.3.5
 
 - **status 反映运行时注入状态**：走 runtime-css 路径成功应用后，`status`/summary 不再显示"未应用"。新增会话级 `runtimeApplied` 信号（进程内、不持久化，确保 autoApply 每次启动仍重新注入），summary 提示"已通过运行时 CSS 注入美化（当前会话生效）"
